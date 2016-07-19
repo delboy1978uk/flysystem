@@ -1,6 +1,7 @@
 # League\Flysystem for Legacy PHP
 
-Slowly upgrading a legacy site? This is a fork which I am refactoring to use PHP5.3.
+Slowly upgrading a legacy site? This is a fork which I refactored to use PHP5.3. Upgrade your site though!
+Instructions are the same but use array() and not []
 
 Flysystem is a filesystem abstraction which allows you to easily swap out a local filesystem for a remote one.
 
@@ -20,7 +21,7 @@ Flysystem is a filesystem abstraction which allows you to easily swap out a loca
 Through Composer, obviously:
 
 ```
-composer require league/flysystem
+composer require delboy1978uk/flysystem
 ```
 
 You can also use Flysystem without using Composer by registering an autoloader function:

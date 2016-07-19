@@ -1,11 +1,7 @@
 language: php
 
 php:
-  - 5.4
-  - 5.5
-  - 5.6
-  - 7.0
-  - hhvm
+  - 5.3
 
 matrix:
   include:
@@ -14,7 +10,7 @@ matrix:
       language: generic
       env:
         - _OSX=10.11
-        - _PHP: php56
+        - _PHP: php53
 
 sudo: false
 
