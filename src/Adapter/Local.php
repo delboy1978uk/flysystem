@@ -31,16 +31,16 @@ class Local extends AbstractAdapter
     /**
      * @var array
      */
-    protected static $permissions = [
-        'file' => [
+    protected static $permissions = array(
+        'file' => array(
             'public' => 0644,
             'private' => 0600,
-        ],
-        'dir' => [
+        ),
+        'dir' => array(
             'public' => 0755,
             'private' => 0700,
-        ]
-    ];
+        ),
+    );
 
     /**
      * @var string
@@ -69,7 +69,7 @@ class Local extends AbstractAdapter
      * @param int    $linkHandling
      * @param array  $permissions
      */
-    public function __construct($root, $writeFlags = LOCK_EX, $linkHandling = self::DISALLOW_LINKS, array $permissions = [])
+    public function __construct($root, $writeFlags = LOCK_EX, $linkHandling = self::DISALLOW_LINKS, array $permissions = array())
     {
         $root = is_link($root) ? realpath($root) : $root;
         $this->permissionMap = array_replace_recursive(static::$permissions, $permissions);
@@ -257,11 +257,11 @@ class Local extends AbstractAdapter
      */
     public function listContents($directory = '', $recursive = false)
     {
-        $result = [];
+        $result = array();
         $location = $this->applyPathPrefix($directory) . $this->pathSeparator;
 
         if ( ! is_dir($location)) {
-            return [];
+            return array();
         }
 
         $iterator = $recursive ? $this->getRecursiveDirectoryIterator($location) : $this->getDirectoryIterator($location);
@@ -306,7 +306,7 @@ class Local extends AbstractAdapter
         $location = $this->applyPathPrefix($path);
         $finfo = new Finfo(FILEINFO_MIME_TYPE);
 
-        return ['mimetype' => $finfo->file($location)];
+        return array('mimetype' => $finfo->file($location));
     }
 
     /**
@@ -358,7 +358,7 @@ class Local extends AbstractAdapter
         if ( ! is_dir($location) && ! mkdir($location, $this->permissionMap['dir'][$visibility], true)) {
             $return = false;
         } else {
-            $return = ['path' => $dirname, 'type' => 'dir'];
+            $return = array('path' => $dirname, 'type' => 'dir');
         }
 
         umask($umask);
@@ -471,10 +471,10 @@ class Local extends AbstractAdapter
      */
     protected function mapFileInfo(SplFileInfo $file)
     {
-        $normalized = [
+        $normalized = array(
             'type' => $file->getType(),
             'path' => $this->getFilePath($file),
-        ];
+        );
 
         $normalized['timestamp'] = $file->getMTime();
 

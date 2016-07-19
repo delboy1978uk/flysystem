@@ -154,7 +154,7 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
         $path = 'path.txt';
         $output = '__CONTENTS__';
         $this->prophecy->has($path)->willReturn(true);
-        $this->prophecy->read($path)->willReturn(['contents' => $output]);
+        $this->prophecy->read($path)->willReturn(array('contents' => $output));
         $this->prophecy->delete($path)->willReturn(true);
         $response = $this->filesystem->readAndDelete($path);
         $this->assertEquals($output, $response);
@@ -174,7 +174,7 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
         $path = 'path.txt';
         $output = '__CONTENTS__';
         $this->prophecy->has($path)->willReturn(true);
-        $this->prophecy->read($path)->willReturn(['contents' => $output]);
+        $this->prophecy->read($path)->willReturn(array('contents' => $output));
         $response = $this->filesystem->read($path);
         $this->assertEquals($response, $output);
     }
@@ -184,7 +184,7 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
         $path = 'path.txt';
         $output = '__CONTENTS__';
         $this->prophecy->has($path)->willReturn(true);
-        $this->prophecy->readStream($path)->willReturn(['stream' => $output]);
+        $this->prophecy->readStream($path)->willReturn(array('stream' => $output));
         $response = $this->filesystem->readStream($path);
         $this->assertEquals($response, $output);
     }
@@ -233,26 +233,26 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
 
     public function testCreateDir()
     {
-        $this->prophecy->createDir('dirname', $this->config)->willReturn(['path' => 'dirname', 'type' => 'dir']);
+        $this->prophecy->createDir('dirname', $this->config)->willReturn(array('path' => 'dirname', 'type' => 'dir'));
         $output = $this->filesystem->createDir('dirname');
         $this->assertTrue($output);
     }
 
     public function metaGetterProvider()
     {
-        return [
-            ['getSize', 1234],
-            ['getVisibility', 'public'],
-            ['getMimetype', 'text/plain'],
-            ['getTimestamp', 2345],
-            ['getMetadata', [
+        return array(
+            array('getSize', 1234),
+            array('getVisibility', 'public'),
+            array('getMimetype', 'text/plain'),
+            array('getTimestamp', 2345),
+            array('getMetadata', array(
                 'path' => 'success.txt',
                 'size' => 1234,
                 'visibility' => 'public',
                 'mimetype' => 'text/plain',
                 'timestamp' => 2345,
-            ]],
-        ];
+            )),
+        );
     }
 
     /**
@@ -262,13 +262,13 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
     {
         $path = 'success.txt';
         $this->prophecy->has($path)->willReturn(true);
-        $this->prophecy->{$method}($path)->willReturn([
+        $this->prophecy->{$method}($path)->willReturn(array(
             'path' => $path,
             'size' => 1234,
             'visibility' => 'public',
             'mimetype' => 'text/plain',
             'timestamp' => 2345,
-        ]);
+        ));
         $output = $this->filesystem->{$method}($path);
         $this->assertEquals($value, $output);
     }
@@ -303,7 +303,7 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
     {
         $path = 'path.txt';
         $this->prophecy->has($path)->willReturn(true);
-        $this->prophecy->setVisibility($path, 'public')->willReturn(['path' => $path, 'visibility' => 'public']);
+        $this->prophecy->setVisibility($path, 'public')->willReturn(array('path' => $path, 'visibility' => 'public'));
         $output = $this->filesystem->setVisibility($path, 'public');
         $this->assertTrue($output);
     }
@@ -321,10 +321,10 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
     {
         $path = 'path.txt';
         $this->prophecy->has($path)->willReturn(true);
-        $this->prophecy->getMetadata($path)->willReturn([
+        $this->prophecy->getMetadata($path)->willReturn(array(
             'path' => $path,
             'type' => 'file',
-        ]);
+        ));
 
         $output = $this->filesystem->get($path);
         $this->assertInstanceOf('League\Flysystem\File', $output);
@@ -334,10 +334,10 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
     {
         $path = 'path';
         $this->prophecy->has($path)->willReturn(true);
-        $this->prophecy->getMetadata($path)->willReturn([
+        $this->prophecy->getMetadata($path)->willReturn(array(
             'path' => $path,
             'type' => 'dir',
-        ]);
+        ));
 
         $output = $this->filesystem->get($path);
         $this->assertInstanceOf('League\Flysystem\Directory', $output);
@@ -345,17 +345,17 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
 
     public function testListContents()
     {
-        $rawListing = [
-           ['path' => 'other_root/file.txt'],
-           ['path' => 'valid/to_deep/file.txt'],
-           ['path' => 'valid/file.txt'],
-           ['path' => 'valid/a-valid-file.txt'],
-        ];
+        $rawListing = array(
+            array('path' => 'other_root/file.txt'),
+           array('path' => 'valid/to_deep/file.txt'),
+           array('path' => 'valid/file.txt'),
+           array('path' => 'valid/a-valid-file.txt'),
+        );
 
-        $expected = [
+        $expected = array(
             Util::pathinfo('valid/a-valid-file.txt'),
             Util::pathinfo('valid/file.txt'),
-        ];
+        );
 
         $this->prophecy->listContents('valid', false)->willReturn($rawListing);
         $output = $this->filesystem->listContents('valid', false);
@@ -364,16 +364,16 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
 
     public function testListContentZeroName()
     {
-        $rawListing = [
+        $rawListing = array(
             // files
-            ['path' => 0],
-            ['path' => '0'],
-            ['path' => ''],
+            array('path' => 0),
+            array('path' => '0'),
+            array('path' => ''),
             // directories
-            ['path' => 0, 'type' => 'dir'],
-            ['path' => '0', 'type' => 'dir'],
-            ['path' => '', 'type' => 'dir']
-        ];
+            array('path' => 0, 'type' => 'dir'),
+            array('path' => '0', 'type' => 'dir'),
+            array('path' => '', 'type' => 'dir')
+        );
         $this->prophecy->listContents('', false)->willReturn($rawListing);
         $output = $this->filesystem->listContents('', false);
         $this->assertCount(2, $output);
@@ -381,37 +381,37 @@ class FilesystemTests extends \PHPUnit_Framework_TestCase
 
     public function testListContentsRecursize()
     {
-        $rawListing = [
-           ['path' => 'other_root/file.txt'],
-           ['path' => 'valid/to_deep/file.txt'],
-           ['path' => 'valid/file.txt'],
-           ['path' => 'valid/a-valid-file.txt'],
-        ];
-        $expected = [
+        $rawListing = array(
+            array('path' => 'other_root/file.txt'),
+           array('path' => 'valid/to_deep/file.txt'),
+           array('path' => 'valid/file.txt'),
+          array('path' => 'valid/a-valid-file.txt'),
+    );
+        $expected = array(
             Util::pathinfo('valid/a-valid-file.txt'),
             Util::pathinfo('valid/file.txt'),
             Util::pathinfo('valid/to_deep/file.txt'),
-        ];
+        );
         $this->prophecy->listContents('valid', true)->willReturn($rawListing);
         $output = $this->filesystem->listContents('valid', true);
         $this->assertEquals($expected, $output);
 
-        $expected = [
+        $expected = array(
             Util::pathinfo('other_root/file.txt'),
             Util::pathinfo('valid/a-valid-file.txt'),
             Util::pathinfo('valid/file.txt'),
             Util::pathinfo('valid/to_deep/file.txt'),
-        ];
+        );
         $this->prophecy->listContents('', true)->willReturn($rawListing);
         $output = $this->filesystem->listContents('', true);
         $this->assertEquals($expected, $output);
     }
     public function testListContentsSubDirectoryMatches()
     {
-        $rawListing = [['path' => 'a/dir/file.txt']];
+        $rawListing = array(array('path' => 'a/dir/file.txt'));
         $this->prophecy->listContents('dir', true)->willReturn($rawListing);
         $output = $this->filesystem->listContents('dir', true);
-        $this->assertEquals([], $output);
+        $this->assertEquals(array(), $output);
     }
 
     public function testInvalidPluginCall()

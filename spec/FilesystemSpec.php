@@ -45,10 +45,10 @@ class FilesystemSpec extends ObjectBehavior
     public function it_should_allow_writes()
     {
         $this->adapter->has('file')->willReturn(false);
-        $this->adapter->write('file', 'contents', Argument::type('League\Flysystem\Config'))->willReturn($cache = [
+        $this->adapter->write('file', 'contents', Argument::type('League\Flysystem\Config'))->willReturn($cache = array(
             'path' => 'file',
             'contents' => 'contents',
-        ]);
+        ));
         $this->write('file', 'contents')->shouldReturn(true);
     }
 
@@ -56,9 +56,9 @@ class FilesystemSpec extends ObjectBehavior
     {
         $stream = tmpfile();
         $this->adapter->has('file')->willReturn(false);
-        $this->adapter->writeStream('file', $stream, Argument::type('League\Flysystem\Config'))->willReturn($cache = [
+        $this->adapter->writeStream('file', $stream, Argument::type('League\Flysystem\Config'))->willReturn($cache = array(
             'path' => 'file',
-        ]);
+        ));
 
         $this->writeStream('file', $stream)->shouldReturn(true);
         fclose($stream);
@@ -95,10 +95,10 @@ class FilesystemSpec extends ObjectBehavior
     public function it_should_forward_updates()
     {
         $this->adapter->has('file')->willReturn(true);
-        $this->adapter->update('file', 'contents', Argument::type('League\Flysystem\Config'))->willReturn($cache = [
+        $this->adapter->update('file', 'contents', Argument::type('League\Flysystem\Config'))->willReturn($cache = array(
             'path' => 'file',
             'contents' => 'contents',
-        ]);
+        ));
         $this->update('file', 'contents');
     }
 
@@ -106,9 +106,9 @@ class FilesystemSpec extends ObjectBehavior
     {
         $stream = tmpfile();
         $this->adapter->has('file')->willReturn(true);
-        $this->adapter->updateStream('file', $stream, Argument::type('League\Flysystem\Config'))->willReturn($cache = [
+        $this->adapter->updateStream('file', $stream, Argument::type('League\Flysystem\Config'))->willReturn($cache = array(
             'path' => 'file',
-        ]);
+        ));
         $this->updateStream('file', $stream);
         fclose($stream);
     }
@@ -116,10 +116,10 @@ class FilesystemSpec extends ObjectBehavior
     public function it_should_write_when_putting_a_new_file()
     {
         $this->adapter->has('file')->willReturn(false);
-        $this->adapter->write('file', 'contents', Argument::type('League\Flysystem\Config'))->willReturn($cache = [
+        $this->adapter->write('file', 'contents', Argument::type('League\Flysystem\Config'))->willReturn($cache = array(
             'path' => 'file',
             'contents' => 'contents',
-        ]);
+        ));
         $this->put('file', 'contents')->shouldReturn(true);
     }
 
@@ -127,9 +127,9 @@ class FilesystemSpec extends ObjectBehavior
     {
         $stream = tmpfile();
         $this->adapter->has('file')->willReturn(false);
-        $this->adapter->writeStream('file', $stream, Argument::type('League\Flysystem\Config'))->willReturn($cache = [
+        $this->adapter->writeStream('file', $stream, Argument::type('League\Flysystem\Config'))->willReturn($cache = array(
             'path' => 'file',
-        ]);
+        ));
         $this->putStream('file', $stream)->shouldReturn(true);
         fclose($stream);
     }
@@ -137,10 +137,10 @@ class FilesystemSpec extends ObjectBehavior
     public function it_should_update_when_putting_a_new_file()
     {
         $this->adapter->has('file')->willReturn(true);
-        $this->adapter->update('file', 'contents', Argument::type('League\Flysystem\Config'))->willReturn($cache = [
+        $this->adapter->update('file', 'contents', Argument::type('League\Flysystem\Config'))->willReturn($cache = array(
             'path' => 'file',
             'contents' => 'contents',
-        ]);
+        ));
         $this->put('file', 'contents')->shouldReturn(true);
     }
 
@@ -148,9 +148,9 @@ class FilesystemSpec extends ObjectBehavior
     {
         $stream = tmpfile();
         $this->adapter->has('file')->willReturn(true);
-        $this->adapter->updateStream('file', $stream, Argument::type('League\Flysystem\Config'))->willReturn($cache = [
+        $this->adapter->updateStream('file', $stream, Argument::type('League\Flysystem\Config'))->willReturn($cache = array(
             'path' => 'file',
-        ]);
+        ));
         $this->putStream('file', $stream)->shouldReturn(true);
         fclose($stream);
     }
@@ -217,7 +217,7 @@ class FilesystemSpec extends ObjectBehavior
     public function it_should_delete_after_reading_during_readAndDelete()
     {
         $this->adapter->has('file')->willReturn(true);
-        $this->adapter->read('file')->willReturn(['contents' => 'contents']);
+        $this->adapter->read('file')->willReturn(array('contents' => 'contents'));
         $this->adapter->delete('file')->shouldBeCalled();
         $this->readAndDelete('file')->shouldReturn('contents');
     }

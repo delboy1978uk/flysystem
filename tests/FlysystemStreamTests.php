@@ -8,7 +8,7 @@ class FlysystemStreamTests extends PHPUnit_Framework_TestCase
     {
         $adapter = Mockery::mock('League\Flysystem\AdapterInterface');
         $adapter->shouldReceive('has')->andReturn(false);
-        $adapter->shouldReceive('writeStream')->andReturn(['path' => 'file.txt'], false);
+        $adapter->shouldReceive('writeStream')->andReturn(array('path' => 'file.txt'), false);
         $filesystem = new Filesystem($adapter);
         $this->assertTrue($filesystem->writeStream('file.txt', tmpfile()));
         $this->assertFalse($filesystem->writeStream('file.txt', tmpfile()));

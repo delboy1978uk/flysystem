@@ -14,7 +14,7 @@
         }
     ],
     "require": {
-        "php": ">=5.4.0"
+         "ext-fileinfo": "*"
     },
     "require-dev": {
         "ext-fileinfo": "*",
@@ -32,8 +32,7 @@
             "League\\Flysystem\\Stub\\": "stub/"
         }
     },
-    "suggest": {
-        "ext-fileinfo": "Required for MimeType",
+    "suggest": { 
         "league/flysystem-eventable-filesystem": "Allows you to use EventableFilesystem",
         "league/flysystem-rackspace": "Allows you to use Rackspace Cloud Files",
         "league/flysystem-copy": "Allows you to use Copy.com storage",
@@ -45,16 +44,9 @@
         "league/flysystem-cached-adapter": "Flysystem adapter decorator for metadata caching",
         "league/flysystem-sftp": "Allows you to use SFTP server storage via phpseclib",
         "league/flysystem-ziparchive": "Allows you to use ZipArchive adapter"
-    },
-    "conflict": {
-        "league/flysystem-sftp": "<1.0.6"
-    },
+    },  
     "config": {
-        "bin-dir": "bin"
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "1.1-dev"
-        }
+        "bin-dir": "bin",
+        "secure-http": false
     }
 }

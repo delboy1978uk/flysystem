@@ -3,7 +3,9 @@
 namespace League\Flysystem;
 
 use InvalidArgumentException;
-use League\Flysystem\Plugin\PluggableTrait;
+use BadMethodCallException;
+use League\Flysystem\Plugin\PluginNotFoundException;
+use LogicException;
 use League\Flysystem\Util\ContentListingFormatter;
 
 /**
@@ -16,8 +18,132 @@ use League\Flysystem\Util\ContentListingFormatter;
  */
 class Filesystem implements FilesystemInterface
 {
-    use PluggableTrait;
-    use ConfigAwareTrait;
+    /**
+     * @var array
+     */
+    protected $plugins = array();
+
+    /**
+     * Register a plugin.
+     *
+     * @param PluginInterface $plugin
+     *
+     * @return $this
+     */
+    public function addPlugin(PluginInterface $plugin)
+    {
+        $this->plugins[$plugin->getMethod()] = $plugin;
+
+        return $this;
+    }
+
+    /**
+     * Find a specific plugin.
+     *
+     * @param string $method
+     *
+     * @throws LogicException
+     *
+     * @return PluginInterface $plugin
+     */
+    protected function findPlugin($method)
+    {
+        if ( ! isset($this->plugins[$method])) {
+            throw new PluginNotFoundException('Plugin not found for method: ' . $method);
+        }
+
+        if ( ! method_exists($this->plugins[$method], 'handle')) {
+            throw new LogicException(get_class($this->plugins[$method]) . ' does not have a handle method.');
+        }
+
+        return $this->plugins[$method];
+    }
+
+    /**
+     * Invoke a plugin by method name.
+     *
+     * @param string $method
+     * @param array  $arguments
+     *
+     * @return mixed
+     */
+    protected function invokePlugin($method, array $arguments, FilesystemInterface $filesystem)
+    {
+        $plugin = $this->findPlugin($method);
+        $plugin->setFilesystem($filesystem);
+        $callback = array($plugin, 'handle');
+
+        return call_user_func_array($callback, $arguments);
+    }
+
+    /**
+     * Plugins pass-through.
+     *
+     * @param string $method
+     * @param array  $arguments
+     *
+     * @throws BadMethodCallException
+     *
+     * @return mixed
+     */
+    public function __call($method, array $arguments)
+    {
+        try {
+            return $this->invokePlugin($method, $arguments, $this);
+        } catch (PluginNotFoundException $e) {
+            throw new BadMethodCallException(
+                'Call to undefined method '
+                . get_class($this)
+                . '::' . $method
+            );
+        }
+    }
+
+
+
+    /**
+     * @var Config
+     */
+    protected $config;
+
+    /**
+     * Set the config.
+     *
+     * @param Config|array|null $config
+     */
+    protected function setConfig($config)
+    {
+        $this->config = $config ? Util::ensureConfig($config) : null;
+    }
+
+    /**
+     * Get the Config.
+     *
+     * @return Config config object
+     */
+    public function getConfig()
+    {
+        if ($this->config === null) {
+            return $this->config = new Config;
+        }
+
+        return $this->config;
+    }
+
+    /**
+     * Convert a config array to a Config object with the correct fallback.
+     *
+     * @param array $config
+     *
+     * @return Config
+     */
+    protected function prepareConfig(array $config)
+    {
+        $config = new Config($config);
+        $config->setFallback($this->getConfig());
+
+        return $config;
+    }
 
     /**
      * @var AdapterInterface
@@ -59,7 +185,7 @@ class Filesystem implements FilesystemInterface
     /**
      * @inheritdoc
      */
-    public function write($path, $contents, array $config = [])
+    public function write($path, $contents, array $config = array())
     {
         $path = Util::normalizePath($path);
         $this->assertAbsent($path);
@@ -71,7 +197,7 @@ class Filesystem implements FilesystemInterface
     /**
      * @inheritdoc
      */
-    public function writeStream($path, $resource, array $config = [])
+    public function writeStream($path, $resource, array $config = array())
     {
         if ( ! is_resource($resource)) {
             throw new InvalidArgumentException(__METHOD__ . ' expects argument #2 to be a valid resource.');
@@ -89,7 +215,7 @@ class Filesystem implements FilesystemInterface
     /**
      * @inheritdoc
      */
-    public function put($path, $contents, array $config = [])
+    public function put($path, $contents, array $config = array())
     {
         $path = Util::normalizePath($path);
         $config = $this->prepareConfig($config);
@@ -104,7 +230,7 @@ class Filesystem implements FilesystemInterface
     /**
      * @inheritdoc
      */
-    public function putStream($path, $resource, array $config = [])
+    public function putStream($path, $resource, array $config = array())
     {
         if ( ! is_resource($resource)) {
             throw new InvalidArgumentException(__METHOD__ . ' expects argument #2 to be a valid resource.');
@@ -142,7 +268,7 @@ class Filesystem implements FilesystemInterface
     /**
      * @inheritdoc
      */
-    public function update($path, $contents, array $config = [])
+    public function update($path, $contents, array $config = array())
     {
         $path = Util::normalizePath($path);
         $config = $this->prepareConfig($config);
@@ -155,7 +281,7 @@ class Filesystem implements FilesystemInterface
     /**
      * @inheritdoc
      */
-    public function updateStream($path, $resource, array $config = [])
+    public function updateStream($path, $resource, array $config = array())
     {
         if ( ! is_resource($resource)) {
             throw new InvalidArgumentException(__METHOD__ . ' expects argument #2 to be a valid resource.');
@@ -253,7 +379,7 @@ class Filesystem implements FilesystemInterface
     /**
      * @inheritdoc
      */
-    public function createDir($dirname, array $config = [])
+    public function createDir($dirname, array $config = array())
     {
         $dirname = Util::normalizePath($dirname);
         $config = $this->prepareConfig($config);
@@ -268,8 +394,8 @@ class Filesystem implements FilesystemInterface
     {
         $directory = Util::normalizePath($directory);
         $contents = $this->getAdapter()->listContents($directory, $recursive);
-
-        return (new ContentListingFormatter($directory, $recursive))->formatListing($contents);
+        $formatter = new ContentListingFormatter($directory, $recursive);
+        return $formatter->formatListing($contents);
     }
 
     /**
