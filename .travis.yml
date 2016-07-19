@@ -3,15 +3,6 @@ language: php
 php:
   - 5.3
 
-matrix:
-  include:
-    - os: osx
-      osx_image: xcode7.3
-      language: generic
-      env:
-        - _OSX=10.11
-        - _PHP: php53
-
 sudo: false
 
 env:
