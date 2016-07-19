@@ -13,7 +13,7 @@ class StreamedWritingPolyfillTests extends \PHPUnit_Framework_TestCase
         fwrite($stream, 'contents');
         $stub = new StreamedWritingStub();
         $response = $stub->writeStream('path.txt', $stream, new Config());
-        $this->assertEquals(['path' => 'path.txt', 'contents' => 'contents'], $response);
+        $this->assertEquals(array('path' => 'path.txt', 'contents' => 'contents'), $response);
         fclose($stream);
     }
 
@@ -23,7 +23,7 @@ class StreamedWritingPolyfillTests extends \PHPUnit_Framework_TestCase
         fwrite($stream, 'contents');
         $stub = new StreamedWritingStub();
         $response = $stub->updateStream('path.txt', $stream, new Config());
-        $this->assertEquals(['path' => 'path.txt', 'contents' => 'contents'], $response);
+        $this->assertEquals(array('path' => 'path.txt', 'contents' => 'contents'), $response);
         fclose($stream);
     }
 }

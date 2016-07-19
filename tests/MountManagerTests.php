@@ -13,9 +13,9 @@ class MountManagerTests extends PHPUnit_Framework_TestCase
     public function testConstructorInjection()
     {
         $mock = Mockery::mock('League\Flysystem\FilesystemInterface');
-        $manager = new MountManager([
+        $manager = new MountManager(array(
             'prefix' => $mock,
-        ]);
+        ));
         $this->assertEquals($mock, $manager->getFilesystem('prefix'));
     }
 
@@ -39,11 +39,11 @@ class MountManagerTests extends PHPUnit_Framework_TestCase
 
     public function invalidCallProvider()
     {
-        return [
-            [[], 'LogicException'],
-            [[false], 'InvalidArgumentException'],
-            [['path/without/protocol'], 'InvalidArgumentException'],
-        ];
+        return array(
+            array(array(), 'LogicException'),
+            array(array(false), 'InvalidArgumentException'),
+            array(array('path/without/protocol'), 'InvalidArgumentException'),
+        );
     }
 
     /**
@@ -76,7 +76,7 @@ class MountManagerTests extends PHPUnit_Framework_TestCase
         $filename = 'test.txt';
         $buffer = tmpfile();
         $fs1->shouldReceive('readStream')->once()->with($filename)->andReturn($buffer);
-        $fs2->shouldReceive('writeStream')->once()->with($filename, $buffer, [])->andReturn(true);
+        $fs2->shouldReceive('writeStream')->once()->with($filename, $buffer, array())->andReturn(true);
         $response = $manager->copy("fs1://{$filename}", "fs2://{$filename}");
         $this->assertTrue($response);
 
@@ -87,13 +87,13 @@ class MountManagerTests extends PHPUnit_Framework_TestCase
 
         $buffer = tmpfile();
         $fs1->shouldReceive('readStream')->once()->with($filename)->andReturn($buffer);
-        $fs2->shouldReceive('writeStream')->once()->with($filename, $buffer, [])->andReturn(false);
+        $fs2->shouldReceive('writeStream')->once()->with($filename, $buffer, array())->andReturn(false);
         $status = $manager->copy("fs1://{$filename}", "fs2://{$filename}");
         $this->assertFalse($status);
 
         $buffer = tmpfile();
         $fs1->shouldReceive('readStream')->once()->with($filename)->andReturn($buffer);
-        $fs2->shouldReceive('writeStream')->once()->with($filename, $buffer, [])->andReturn(true);
+        $fs2->shouldReceive('writeStream')->once()->with($filename, $buffer, array())->andReturn(true);
         $status = $manager->copy("fs1://{$filename}", "fs2://{$filename}");
         $this->assertTrue($status);
     }
@@ -109,11 +109,11 @@ class MountManagerTests extends PHPUnit_Framework_TestCase
         $filename = 'test.txt';
         $buffer = tmpfile();
         $fs1->shouldReceive('readStream')->with($filename)->andReturn($buffer);
-        $fs2->shouldReceive('writeStream')->with($filename, $buffer, [])->andReturn(false);
+        $fs2->shouldReceive('writeStream')->with($filename, $buffer, array())->andReturn(false);
         $code = $manager->move("fs1://{$filename}", "fs2://{$filename}");
         $this->assertFalse($code);
 
-        $manager->shouldReceive('copy')->with("fs1://{$filename}", "fs2://{$filename}", [])->andReturn(true);
+        $manager->shouldReceive('copy')->with("fs1://{$filename}", "fs2://{$filename}", array())->andReturn(true);
         $manager->shouldReceive('delete')->with("fs1://{$filename}")->andReturn(true);
         $code = $manager->move("fs1://{$filename}", "fs2://{$filename}");
 
@@ -123,10 +123,10 @@ class MountManagerTests extends PHPUnit_Framework_TestCase
     protected function mockFilesystem()
     {
         $mock = Mockery::mock('League\Flysystem\FilesystemInterface');
-        $mock->shouldReceive('listContents')->andReturn([
-           ['path' => 'path.txt', 'type' => 'file'],
-           ['path' => 'dirname/path.txt', 'type' => 'file'],
-        ]);
+        $mock->shouldReceive('listContents')->andReturn(array(
+            array('path' => 'path.txt', 'type' => 'file'),
+           array('path' => 'dirname/path.txt', 'type' => 'file'),
+        ));
 
         return $mock;
     }
@@ -156,16 +156,16 @@ class MountManagerTests extends PHPUnit_Framework_TestCase
     public function testListWith()
     {
         $manager = new MountManager();
-        $response = ['path' => 'file.ext', 'timestamp' => time()];
+        $response = array('path' => 'file.ext', 'timestamp' => time());
         $mock = Mockery::mock('League\Flysystem\FilesystemInterface');
-        $mock->shouldReceive('listWith')->with(['timestamp'], 'file.ext', false)->once()->andReturn($response);
+        $mock->shouldReceive('listWith')->with(array('timestamp'), 'file.ext', false)->once()->andReturn($response);
         $manager->mountFilesystem('prot', $mock);
-        $this->assertEquals($response, $manager->listWith(['timestamp'], 'prot://file.ext', false));
+        $this->assertEquals($response, $manager->listWith(array('timestamp'), 'prot://file.ext', false));
     }
 
     public function provideMountSchemas()
     {
-        return [['with.dot'], ['with-dash'], ['with+plus'], ['with:colon']];
+        return array(array('with.dot'), array('with-dash'), array('with+plus'), array('with:colon'));
     }
 
     /**
