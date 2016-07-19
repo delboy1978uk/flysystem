@@ -6,7 +6,7 @@ use League\Flysystem\Config;
 
 class FtpdTests extends \PHPUnit_Framework_TestCase
 {
-    protected $options = [
+    protected $options = array(
         'host' => 'example.org',
         'port' => 40,
         'ssl' => true,
@@ -17,7 +17,7 @@ class FtpdTests extends \PHPUnit_Framework_TestCase
         'passive' => false,
         'username' => 'user',
         'password' => 'password',
-    ];
+    );
 
     public function testInstantiable()
     {
@@ -31,7 +31,7 @@ class FtpdTests extends \PHPUnit_Framework_TestCase
         $this->assertFalse($adapter->has('syno.not.found'));
         $result = $adapter->getMimetype('something.txt');
         $this->assertEquals('text/plain', $result['mimetype']);
-        $this->assertInternalType('array', $adapter->write('syno.unknowndir/file.txt', 'contents', new Config(['visibility' => 'public'])));
+        $this->assertInternalType('array', $adapter->write('syno.unknowndir/file.txt', 'contents', new Config(array('visibility' => 'public'))));
         $this->assertInternalType('array', $adapter->getTimestamp('some/file.ext'));
     }
 
@@ -42,7 +42,7 @@ class FtpdTests extends \PHPUnit_Framework_TestCase
     {
         $adapter = new Ftpd($this->options);
         $result = $adapter->listContents('fail.rawlist');
-        $this->assertEquals([], $result);
+        $this->assertEquals(array(), $result);
     }
 
     /**
