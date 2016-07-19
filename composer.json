@@ -51,6 +51,6 @@
     }
   },
   "config": {
-    "bin-dir": "bin",
+    "bin-dir": "bin"
   }
 }
