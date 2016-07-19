@@ -3,7 +3,6 @@
 namespace League\Flysystem\Adapter;
 
 use ErrorException;
-use League\Flysystem\Adapter\Polyfill\StreamedCopyTrait;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Config;
 use League\Flysystem\Util;
@@ -12,7 +11,30 @@ use RuntimeException;
 
 class Ftp extends AbstractFtpAdapter
 {
-    use StreamedCopyTrait;
+    /**
+     * Copy a file.
+     *
+     * @param string $path
+     * @param string $newpath
+     *
+     * @return bool
+     */
+    public function copy($path, $newpath)
+    {
+        $response = $this->readStream($path);
+
+        if ($response === false || ! is_resource($response['stream'])) {
+            return false;
+        }
+
+        $result = $this->writeStream($newpath, $response['stream'], new Config());
+
+        if ($result !== false && is_resource($response['stream'])) {
+            fclose($response['stream']);
+        }
+
+        return $result !== false;
+    }
 
     /**
      * @var int
@@ -32,7 +54,7 @@ class Ftp extends AbstractFtpAdapter
     /**
      * @var array
      */
-    protected $configurable = [
+    protected $configurable = array(
         'host',
         'port',
         'username',
@@ -47,7 +69,7 @@ class Ftp extends AbstractFtpAdapter
         'systemType',
         'ignorePassiveAddress',
         'recurseManually',
-    ];
+    );
 
     /**
      * Set the transfer mode.
@@ -307,7 +329,7 @@ class Ftp extends AbstractFtpAdapter
 
         $this->setConnectionRoot();
 
-        return ['path' => $dirname];
+        return array('path' => $dirname);
     }
 
     /**
@@ -321,7 +343,7 @@ class Ftp extends AbstractFtpAdapter
     protected function createActualDirectory($directory, $connection)
     {
         // List the current directory
-        $listing = ftp_nlist($connection, '.') ?: [];
+        $listing = ftp_nlist($connection, '.') ?: array();
 
         foreach ($listing as $key => $item) {
             if (preg_match('~^\./.*~', $item)) {
@@ -344,13 +366,13 @@ class Ftp extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         if ($path === '') {
-            return ['type' => 'dir', 'path' => ''];
+            return array('type' => 'dir', 'path' => '');
         }
 
         if (@ftp_chdir($connection, $path) === true) {
             $this->setConnectionRoot();
 
-            return ['type' => 'dir', 'path' => $path];
+            return array('type' => 'dir', 'path' => $path);
         }
 
         $listing = ftp_rawlist($connection, '-A ' . str_replace('*', '\\*', $path));
@@ -391,7 +413,7 @@ class Ftp extends AbstractFtpAdapter
     {
         $timestamp = ftp_mdtm($this->getConnection(), $path);
 
-        return ($timestamp !== -1) ? ['timestamp' => $timestamp] : false;
+        return ($timestamp !== -1) ? array('timestamp' => $timestamp) : false;
     }
 
     /**
@@ -458,7 +480,7 @@ class Ftp extends AbstractFtpAdapter
         $options = $recursive ? '-alnR' : '-aln';
         $listing = ftp_rawlist($this->getConnection(), $options . ' ' . $directory);
 
-        return $listing ? $this->normalizeListing($listing, $directory) : [];
+        return $listing ? $this->normalizeListing($listing, $directory) : array();
     }
 
     /**
@@ -468,8 +490,8 @@ class Ftp extends AbstractFtpAdapter
      */
     protected function listDirectoryContentsRecursive($directory)
     {
-        $listing = $this->normalizeListing(ftp_rawlist($this->getConnection(), '-aln' . ' ' . $directory) ?: []);
-        $output = [];
+        $listing = $this->normalizeListing(ftp_rawlist($this->getConnection(), '-aln' . ' ' . $directory) ?: array());
+        $output = array();
 
         foreach ($listing as $directory) {
             $output[] = $directory;

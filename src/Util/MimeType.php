@@ -67,7 +67,7 @@ class MimeType
      */
     public static function getExtensionToMimeTypeMap()
     {
-        return [
+        return array(
             'hqx'   => 'application/mac-binhex40',
             'cpt'   => 'application/mac-compactpro',
             'csv'   => 'text/x-comma-separated-values',
@@ -208,6 +208,6 @@ class MimeType
             'cdr'   => 'application/cdr',
             'wma'   => 'audio/x-ms-wma',
             'jar'   => 'application/java-archive',
-        ];
+        );
     }
 }

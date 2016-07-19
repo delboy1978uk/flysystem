@@ -5,11 +5,96 @@ namespace League\Flysystem\Adapter;
 use League\Flysystem\Adapter\Polyfill\StreamedCopyTrait;
 use League\Flysystem\Adapter\Polyfill\StreamedTrait;
 use League\Flysystem\Config;
+use League\Flysystem\Util;
 
 class NullAdapter extends AbstractAdapter
 {
-    use StreamedTrait;
-    use StreamedCopyTrait;
+    /**
+     * Reads a file as a stream.
+     *
+     * @param string $path
+     *
+     * @return array|false
+     *
+     * @see League\Flysystem\ReadInterface::readStream()
+     */
+    public function readStream($path)
+    {
+        if ( ! $data = $this->read($path)) {
+            return false;
+        }
+
+        $stream = fopen('php://temp', 'w+b');
+        fwrite($stream, $data['contents']);
+        rewind($stream);
+        $data['stream'] = $stream;
+        unset($data['contents']);
+
+        return $data;
+    }
+    /**
+     * Stream fallback delegator.
+     *
+     * @param string   $path
+     * @param resource $resource
+     * @param Config   $config
+     * @param string   $fallback
+     *
+     * @return mixed fallback result
+     */
+    protected function stream($path, $resource, Config $config, $fallback)
+    {
+        Util::rewindStream($resource);
+        $contents = stream_get_contents($resource);
+        $fallbackCall = array($this, $fallback);
+
+        return call_user_func($fallbackCall, $path, $contents, $config);
+    }
+
+    /**
+     * Write using a stream.
+     *
+     * @param string   $path
+     * @param resource $resource
+     * @param Config   $config
+     *
+     * @return mixed false or file metadata
+     */
+    public function writeStream($path, $resource, Config $config)
+    {
+        return $this->stream($path, $resource, $config, 'write');
+    }
+
+    /**
+     * Update a file using a stream.
+     *
+     * @param string   $path
+     * @param resource $resource
+     * @param Config   $config   Config object or visibility setting
+     *
+     * @return mixed false of file metadata
+     */
+    public function updateStream($path, $resource, Config $config)
+    {
+        return $this->stream($path, $resource, $config, 'update');
+    }
+
+    public function copy($path, $newpath)
+    {
+        $response = $this->readStream($path);
+
+        if ($response === false || ! is_resource($response['stream'])) {
+            return false;
+        }
+
+        $result = $this->writeStream($newpath, $response['stream'], new Config());
+
+        if ($result !== false && is_resource($response['stream'])) {
+            fclose($response['stream']);
+        }
+
+        return $result !== false;
+    }
 
     /**
      * Check whether a file is present.
@@ -75,7 +160,7 @@ class NullAdapter extends AbstractAdapter
      */
     public function listContents($directory = '', $recursive = false)
     {
-        return [];
+        return array();
     }
 
     /**
@@ -131,7 +216,7 @@ class NullAdapter extends AbstractAdapter
      */
     public function createDir($dirname, Config $config)
     {
-        return ['path' => $dirname, 'type' => 'dir'];
+        return array('path' => $dirname, 'type' => 'dir');
     }
 
     /**
